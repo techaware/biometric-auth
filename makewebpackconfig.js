@@ -11,15 +11,20 @@ module.exports = function(options) {
 
   // If production is true
   if (options.prod) {
+    devtool = 'cheap-module-source-map';
     // Entry
     entry = [
       // path.resolve(__dirname, 'js/app.js') // Start with js/app.js...
         mainPath
     ];
-    cssLoaders = ['file-loader?name=[path][name].[ext]', 'postcss-loader'];
     // cssLoaders = ['file-loader?name=[path][name].[ext]', 'postcss-loader'];
+    // cssLoaders = ['file-loader?name=[path][name].[ext]', 'postcss-loader'];
+    cssLoaders = ['style-loader',{loader:'css-loader'}, 'postcss-loader'];
     // Plugins
     plugins = [// Plugins for Webpack
+      new webpack.DefinePlugin({
+        'process.env.NODE_ENV': JSON.stringify('production')
+      }),
       new webpack.optimize.UglifyJsPlugin({ // Optimize the JavaScript...
         compress: {
           warnings: false // ...but do not show warnings in the console (there is a lot of them)
@@ -43,6 +48,8 @@ module.exports = function(options) {
       new webpack.LoaderOptionsPlugin({
         // test: /\.xxx$/, // may apply this only for some modules
         options: {
+          // minimize: true,
+          // debug: true,
           postcss: function() {
             return [
               require('postcss-import')({ // Import all the css files...

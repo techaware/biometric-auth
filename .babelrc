@@ -3,16 +3,22 @@
   "env": {
     // only enable react-transform-hmr when process.env.NODE_ENV is not 'production'
     "development": {
-      "plugins": ["react-transform"],
-      "extra": {
-        "react-transform": {
-          "transforms": [{
-            "transform": "react-transform-hmr",
-            "imports": ["react"],
-            "locals": ["module"]
-          }]
-        }
-      }
+//      "plugins": ["react-transform"],
+//      "extra": {
+//        "react-transform": {
+//          "transforms": [{
+//            "transform": "react-transform-hmr",
+//            "imports": ["react"],
+//            "locals": ["module"]
+//          }]
+//        }
+//      }
+    },
+    "production": {
+      "plugins": [
+        ["transform-object-rest-spread"],
+        ["transform-react-display-name"]
+      ]
     }
   }
 }
