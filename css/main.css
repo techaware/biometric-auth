@@ -6,21 +6,21 @@
 @import 'vendor/_normalize';
 
 /* 2. Configuration and helpers */
-@import 'utils/_variables';
-@import 'base/_helpers';
+@import '/utils/_variables';
+@import '/base/_helpers';
 
 /* 3. Base stuff */
-@import 'base/_base';
-@import 'base/_typography';
+@import '/base/_base';
+@import '/base/_typography';
 
 /* 4. Layout-related sections */
-@import 'layout/_header';
-@import 'layout/_footer';
+@import '/layout/_header';
+@import '/layout/_footer';
 
 /* 5. Components */
-@import 'components/_buttons';
-@import 'components/_home';
-@import 'components/_form-page';
-@import 'components/_form';
-@import 'components/_nav';
-@import 'components/_loading-indicator';
+@import '/components/_buttons';
+@import '/components/_home';
+@import '/components/_form-page';
+@import '/components/_form';
+@import '/components/_nav';
+@import '/components/_loading-indicator';

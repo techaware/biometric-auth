@@ -17,6 +17,7 @@ module.exports = function(options) {
         mainPath
     ];
     cssLoaders = ['file-loader?name=[path][name].[ext]', 'postcss-loader'];
+    // cssLoaders = ['file-loader?name=[path][name].[ext]', 'postcss-loader'];
     // Plugins
     plugins = [// Plugins for Webpack
       new webpack.optimize.UglifyJsPlugin({ // Optimize the JavaScript...
@@ -38,6 +39,28 @@ module.exports = function(options) {
           minifyCSS: true,
           minifyURLs: true
         }
+      }),
+      new webpack.LoaderOptionsPlugin({
+        // test: /\.xxx$/, // may apply this only for some modules
+        options: {
+          postcss: function() {
+            return [
+              require('postcss-import')({ // Import all the css files...
+                onImport: function (files) {
+                    files.forEach(this.addDependency); // ...and add dependecies from the main.css files to the other css files...
+                }.bind(this) // ...so they get hot–reloaded when something changes...
+              }),
+              require('postcss-simple-vars')(), // ...then replace the variables...
+              require('postcss-focus')(), // ...add a :focus to ever :hover...
+              require('autoprefixer')({ // ...and add vendor prefixes...
+                browsers: ['last 2 versions', 'IE > 8'] // ...supporting the last 2 major browser versions and IE 8 and up...
+              }),
+              require('postcss-reporter')({ // This plugin makes sure we get warnings in the console
+                clearMessages: true
+              })
+            ];
+          }
+        }
       })
       // new AppCachePlugin({
       //   exclude: ['.htaccess']
@@ -54,11 +77,33 @@ module.exports = function(options) {
       // path.resolve(__dirname, 'js/app.js') // Start with js/app.js...
         mainPath
     ];
-    cssLoaders = ['style-loader', 'css-loader', 'postcss-loader'];
+    cssLoaders = ['style-loader',{loader:'css-loader'}, 'postcss-loader'];
     // Only plugin is the hot module replacement plugin
     plugins = [
       new webpack.HotModuleReplacementPlugin(), // Make hot loading work
       // new AppCachePlugin()
+      new webpack.LoaderOptionsPlugin({
+        // test: /\.xxx$/, // may apply this only for some modules
+        options: {
+          postcss: function() {
+            return [
+              require('postcss-import')({ // Import all the css files...
+                onImport: function (files) {
+                  files.forEach(this.addDependency); // ...and add dependecies from the main.css files to the other css files...
+                }.bind(this) // ...so they get hot–reloaded when something changes...
+              }),
+              require('postcss-simple-vars')(), // ...then replace the variables...
+              require('postcss-focus')(), // ...add a :focus to ever :hover...
+              require('autoprefixer')({ // ...and add vendor prefixes...
+                browsers: ['last 2 versions', 'IE > 8'] // ...supporting the last 2 major browser versions and IE 8 and up...
+              }),
+              require('postcss-reporter')({ // This plugin makes sure we get warnings in the console
+                clearMessages: true
+              })
+            ];
+          }
+        }
+      })
     ]
   }
 
@@ -75,38 +120,46 @@ module.exports = function(options) {
       publicPath: '/build/'
     },
     module: {
-      loaders: [{
+      rules: [{
           test: /\.js$/, // Transform all .js files required somewhere within an entry point...
-          loader: 'babel', // ...with the specified loaders...
+          use: 'babel-loader', // ...with the specified loaders...
           exclude: path.join(__dirname, '/node_modules/') // ...except for the node_modules folder.
         }, {
           test:   /\.css$/, // Transform all .css files required somewhere within an entry point...
-          loaders: cssLoaders // ...with PostCSS
+          use: cssLoaders // ...with PostCSS
         }, {
           test: /\.jpe?g$|\.gif$|\.png$/i,
-          loader: "url-loader?limit=10000"
+          use: "url-loader?limit=10000"
         },
-        {test: /\.json$/,
-          loader: 'json-loader'}
+        {
+          test: /\.jpg$/,
+          use: [ 'file-loader' ]
+        }
+        // {test: /\.json$/,
+        //   loader: 'json-loader'}
       ]
     },
     plugins: plugins,
-    postcss: function() {
-      return [
-        require('postcss-import')({ // Import all the css files...
-          onImport: function (files) {
-              files.forEach(this.addDependency); // ...and add dependecies from the main.css files to the other css files...
-          }.bind(this) // ...so they get hot–reloaded when something changes...
-        }),
-        require('postcss-simple-vars')(), // ...then replace the variables...
-        require('postcss-focus')(), // ...add a :focus to ever :hover...
-        require('autoprefixer')({ // ...and add vendor prefixes...
-          browsers: ['last 2 versions', 'IE > 8'] // ...supporting the last 2 major browser versions and IE 8 and up...
-        }),
-        require('postcss-reporter')({ // This plugin makes sure we get warnings in the console
-          clearMessages: true
-        })
-      ];
+    // postcss: function() {
+    //   return [
+    //     require('postcss-import')({ // Import all the css files...
+    //       onImport: function (files) {
+    //           files.forEach(this.addDependency); // ...and add dependecies from the main.css files to the other css files...
+    //       }.bind(this) // ...so they get hot–reloaded when something changes...
+    //     }),
+    //     require('postcss-simple-vars')(), // ...then replace the variables...
+    //     require('postcss-focus')(), // ...add a :focus to ever :hover...
+    //     require('autoprefixer')({ // ...and add vendor prefixes...
+    //       browsers: ['last 2 versions', 'IE > 8'] // ...supporting the last 2 major browser versions and IE 8 and up...
+    //     }),
+    //     require('postcss-reporter')({ // This plugin makes sure we get warnings in the console
+    //       clearMessages: true
+    //     })
+    //   ];
+    // },
+    resolve: {
+      // modules: path.join(__dirname, 'node_modules')
+      // modules: ["node_modules"]
     },
     target: "web", // Make web variables accessible to webpack, e.g. window
     node: {
@@ -115,7 +168,7 @@ module.exports = function(options) {
       net: 'empty',
       tls: 'empty'
     },
-    stats: false, // Don't show stats in the console
-    progress: true
+    stats: false // Don't show stats in the console
+    // progress: true
   }
 }
