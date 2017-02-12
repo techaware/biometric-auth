@@ -153,6 +153,7 @@ app.post('/register', function(req, res, callback) {
     // res.end("SUCCESS");
     var password = req.body.password;
     var username = req.body.username;
+    console.log(username);
 
     hash(password, function (err, salt, hash) {
         if (err) throw err;
