@@ -67,8 +67,8 @@ var auth = {
      */
     register(username, password, keystrokes, callback) {
         // Post a fake request
-        request.post({
-                url: '/register',
+        request.post('/register',{
+                // url: '/register',
                 form: {username: username, password: password, keystrokes: JSON.stringify(keystrokes)},
                 headers: {'content-type': 'application/x-www-form-urlencoded'}
             },
