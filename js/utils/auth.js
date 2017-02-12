@@ -22,7 +22,7 @@ var auth = {
         }
         // Post a fake request (see below)
         request.post({
-                url: 'http://localhost:3000/userlogin',
+                url: '/userlogin',
                 form: {username: username, password: password, keystrokes: JSON.stringify(keystrokes)},
                 headers: {'content-type': 'application/x-www-form-urlencoded'}
             },
@@ -68,7 +68,7 @@ var auth = {
     register(username, password, keystrokes, callback) {
         // Post a fake request
         request.post({
-                url: 'http://localhost:3000/register',
+                url: '/register',
                 form: {username: username, password: password, keystrokes: JSON.stringify(keystrokes)},
                 headers: {'content-type': 'application/x-www-form-urlencoded'}
             },

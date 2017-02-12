@@ -22,7 +22,9 @@
     "mongoose": "latest",
     "react-d3-basic": "latest",
     "react-d3-core": "latest",
-    "react-d3-tooltip": "latest"
+    "react-d3-tooltip": "latest",
+    "html-webpack-plugin": "^1.6.1",
+    "appcache-webpack-plugin": "^1.2.0"
   },
   "devDependencies": {
     "appcache-webpack-plugin": "^1.2.0",
