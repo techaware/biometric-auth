@@ -63,7 +63,7 @@
   "scripts": {
     "start": "node server",
     "prodbuild": "webpack -p --config ./webpack.prod.config.js",
-    "prodstart":"NODE_ENV=production PORT=4000 node server"
+    "prodstart":"NODE_ENV=production PORT=3000 node server"
   },
   "author": "Rahul Aware",
   "license": "MIT"
