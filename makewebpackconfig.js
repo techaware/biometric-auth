@@ -22,6 +22,9 @@ module.exports = function(options) {
     cssLoaders = ['style-loader',{loader:'css-loader'}, 'postcss-loader'];
     // Plugins
     plugins = [// Plugins for Webpack
+        // new webpack.DefinePlugin({
+        //   '__HOST__': 'http://52.201.231.191:3000/'
+        // }),
       new webpack.DefinePlugin({
         'process.env.NODE_ENV': JSON.stringify('production')
       }),
@@ -87,6 +90,9 @@ module.exports = function(options) {
     cssLoaders = ['style-loader',{loader:'css-loader'}, 'postcss-loader'];
     // Only plugin is the hot module replacement plugin
     plugins = [
+      // new webpack.DefinePlugin({
+      //   '__HOST__': 'http://localhost:3000/'
+      // }),
       new webpack.HotModuleReplacementPlugin(), // Make hot loading work
       // new AppCachePlugin()
       new webpack.LoaderOptionsPlugin({

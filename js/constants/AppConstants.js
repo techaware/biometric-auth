@@ -11,3 +11,8 @@ export const SET_AUTH = 'SET_AUTH';
 export const SENDING_REQUEST = 'SENDING_REQUEST';
 export const SET_STAT = 'SET_STAT';
 export const SET_STATUS = 'SET_STATUS';
+export const BASE_URL = ()=>{
+    var loc = window.location;
+    var baseUrl = loc.protocol + "//" + loc.hostname + (loc.port? ":"+loc.port : "") + "/";
+    return baseUrl;
+}

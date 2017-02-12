@@ -1,6 +1,7 @@
 // import request from './Request';
 
 import request from 'request';
+import { BASE_URL } from '../constants/AppConstants';
 // import $ from "jquery";
 /**
  * Authentication lib
@@ -13,6 +14,7 @@ var auth = {
      * @param  {string}   password The password of the user
      * @param  {Function} callback Called after a user was logged in on the remote server
      */
+
     login(username, password, keystrokes, callback) {
         // If there is a token in the localStorage, the user already is
         // authenticated
@@ -21,7 +23,8 @@ var auth = {
             return;
         }
         // Post a fake request (see below)
-        request.post({
+         var r = request.defaults({'baseUrl':BASE_URL()});
+        r.post({
                 url: '/userlogin',
                 form: {username: username, password: password, keystrokes: JSON.stringify(keystrokes)},
                 headers: {'content-type': 'application/x-www-form-urlencoded'}
@@ -47,7 +50,8 @@ var auth = {
      * Logs the current user out
      */
     logout(callback) {
-        request.post('/logout', {}, () => {
+        var r = request.defaults({'baseUrl':BASE_URL()});
+        r.post('/logout', {}, () => {
             callback(true);
         });
     },
@@ -67,7 +71,8 @@ var auth = {
      */
     register(username, password, keystrokes, callback) {
         // Post a fake request
-        request.post('/register',{
+        var r = request.defaults({'baseUrl':BASE_URL()});
+        r.post('/register',{
                 // url: '/register',
                 form: {username: username, password: password, keystrokes: JSON.stringify(keystrokes)},
                 headers: {'content-type': 'application/x-www-form-urlencoded'}
