@@ -24,13 +24,19 @@ client.connect("tcp://127.0.0.1:4242");
  Database and Models
  */
 mongoose.connect("mongodb://localhost/myapp");
-var UserSchema = new mongoose.Schema({
-    username: String,
-    password: String,
-    salt: String,
-    hash: String
-});
-var User = mongoose.model('users', UserSchema);
+
+var User = require('./model/user');
+var verification = require('./email-verification');
+verification().config();
+
+
+// var UserSchema = new mongoose.Schema({
+//     username: String,
+//     password: String,
+//     salt: String,
+//     hash: String
+// });
+// var User = mongoose.model('users', UserSchema);
 
 
 var isProduction = process.env.NODE_ENV === 'production';
@@ -84,7 +90,7 @@ if (!isProduction) {
 // It is important to catch any errors from the proxy or the
 // server will crash. An example of this is connecting to the
 // server when webpack is bundling
-proxy.on('error', function(e) {
+proxy.on('error', function (e) {
     console.log('Could not connect to proxy, please try again...');
 });
 
@@ -92,8 +98,8 @@ app.listen(port, function () {
     console.log('Server running on port ' + port);
 });
 /*
-Helper Functions
-*/
+ Helper Functions
+ */
 function authenticate(name, pass, fn) {
     if (!module.parent) console.log('authenticating %s:%s', name, pass);
 
@@ -144,47 +150,42 @@ function userExist(req, res, next) {
     });
 }
 
-app.post('/register', function(req, res, callback) {
-    // auth.login(req.body.username, req.body.password, callback);
-    // var user_name = req.body.username;
-    // var password = req.body.password;
-    // var keystrokes = req.body.keystrokes;
-    // console.log("User name = " + user_name + ", password is " + password);
-    // res.end("SUCCESS");
+app.post('/register', function (req, res, callback) {
     var password = req.body.password;
     var username = req.body.username;
+    var keystrokes = req.body.keystrokes;
     console.log(username);
 
     hash(password, function (err, salt, hash) {
         if (err) throw err;
         var user = new User({
             username: username,
+            password: password,
             salt: salt,
             hash: hash,
-        }).save(function (err, newUser) {
-            if (err) throw err;
-            authenticate(newUser.username, password, function(err, user){
-                if(user){
-                    req.session.regenerate(function(){
-                        req.session.user = user;
-                        req.session.success = 'Authenticated as ' + user.username + ' click to <a href="/logout">logout</a>. ' + ' You may now access <a href="/restricted">/restricted</a>.';
-                        // res.redirect('/');
-                        var rpcMessage = JSON.stringify({keystrokes:req.body.keystrokes,
-                                                         user: user.username,
-                                                         newUser:true});
-                        client.invoke("train", rpcMessage,function(error, zpcres, more) {
-                            console.log(zpcres);
-                        });
-
-                        res.send({registered: true});
-                    });
-                }else{
-                    res.send({registered: false,error:err});
-                }
-            });
+            keystrokes: keystrokes
         });
+        verification().createTempUser(user, res);
     });
+});
 
+app.post('/reset', function (req, res, callback) {
+    var password = req.body.password;
+    var username = req.body.username;
+    var keystrokes = req.body.keystrokes;
+    console.log(username);
+
+    hash(password, function (err, salt, hash) {
+        if (err) throw err;
+        var user = new User({
+            username: username,
+            password: password,
+            salt: salt,
+            hash: hash,
+            keystrokes: keystrokes
+        });
+        verification().resetTempUser(user, res);
+    });
 });
 
 app.post("/userLogin", function (req, res) {
@@ -196,23 +197,30 @@ app.post("/userLogin", function (req, res) {
                 req.session.user = user;
                 req.session.success = 'Authenticated as ' + user.username + ' click to <a href="/logout">logout</a>. ' + ' You may now access <a href="/restricted">/restricted</a>.';
                 // res.redirect('/');
-                var rpcMessage = JSON.stringify({keystrokes:req.body.keystrokes,
+                var rpcMessage = JSON.stringify({
+                    keystrokes: req.body.keystrokes,
                     user: user.username,
-                    newUser:false});
-                client.invoke("train", rpcMessage, function(error, zpcres, more) {
+                    newUser: false
+                });
+                client.invoke("train", rpcMessage, function (error, zpcres, more) {
                     // console.log(zpcres);
                     var ResObj = {};
-                    if(error){
-                        ResObj = {authenticated: true,
+                    if (error) {
+                        ResObj = {
+                            authenticated: true,
                             token: token,
-                            stat:null,
-                            status:'Failed'}
-                    }else{
-                        ResObj = {authenticated: true,
+                            stat: null,
+                            status: 'Failed'
+                        }
+                    } else {
+                        ResObj = {
+                            authenticated: true,
                             token: token,
-                            stat:zpcres.stat,
-                            status:zpcres.message}
-                    };
+                            stat: zpcres.stat,
+                            status: zpcres.message
+                        }
+                    }
+                    ;
                     res.send(ResObj);
 
                 });
@@ -224,15 +232,66 @@ app.post("/userLogin", function (req, res) {
 
             req.session.error = 'Authentication failed, please check your ' + ' username and password.';
             // res.redirect('/login');
-            res.send({authenticated: false,
-                error: err});
+            res.send({
+                authenticated: false,
+                error: err
+            });
         }
     });
 });
 
 app.post("/logout", function (req, res) {
     req.session.destroy(function () {
-         // res.redirect('/');
+        // res.redirect('/');
     });
     res.send({logout: true});
+});
+
+
+// user accesses the link that is sent
+app.get('/email-verification/:URL', function (req, res) {
+    var url = req.params.URL;
+    verification().confirmTempUser(url, function (err, user) {
+        if (err) {
+            res.status(404).send('ERROR: user confirmation FAILED');
+        } else if(user == null){
+            res.status(404).send('ERROR: user not found');
+        } else {
+            res.status(200).send('User Confirmed!');
+            //  train
+            var rpcMessage = JSON.stringify({
+                keystrokes: user.keystrokes,
+                user: user.username,
+                newUser: true
+            });
+            client.invoke("train", rpcMessage, function (error, zpcres, more) {
+                console.log(zpcres);
+            });
+        }
+    });
+
+});
+
+// user accesses the link that is sent
+app.get('/email-reset/:URL', function (req, res) {
+    var url = req.params.URL;
+    verification().confirmResetTempUser(url, function (err, user) {
+        if (err) {
+            res.status(404).send('ERROR: user reset FAILED');
+        } else if(user == null){
+            res.status(404).send('ERROR: user not found');
+        } else {
+            res.status(200).send('Password reset Confirmed!');
+            //  train
+            var rpcMessage = JSON.stringify({
+                keystrokes: user.keystrokes,
+                user: user.username,
+                newUser: true
+            });
+            client.invoke("train", rpcMessage, function (error, zpcres, more) {
+                console.log(zpcres);
+            });
+        }
+    });
+
 });

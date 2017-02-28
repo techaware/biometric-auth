@@ -81,13 +81,35 @@ var auth = {
             // If the user was successfully registered, log them in
                 body = JSON.parse(body);
             if (body.registered === true) {
-                this.login(username, password, keystrokes, callback);
+                // this.login(username, password, keystrokes, callback);
+                callback(true, body.msg);
             } else {
                 // If there was a problem registering, show the error
-                callback(false, body.error);
+                callback(false, body.msg);
             }
         });
     },
+
+    reset(username, password, keystrokes, callback) {
+        // Post a fake request
+        var r = request.defaults({'baseUrl':BASE_URL()});
+        r.post('/reset',{
+                // url: '/register',
+                form: {username: username, password: password, keystrokes: JSON.stringify(keystrokes)},
+                headers: {'content-type': 'application/x-www-form-urlencoded'}
+            },
+            (error, response, body) => {
+                body = JSON.parse(body);
+                if (body.registered === true) {
+                    // this.login(username, password, keystrokes, callback);
+                    callback(true, body.msg);
+                } else {
+                    // If there was a problem registering, show the error
+                    callback(false, body.msg);
+                }
+            });
+    },
+
     onChange() {
     }
 }

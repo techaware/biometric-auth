@@ -51,6 +51,7 @@ openSansObserver.check().then(() => {
 // Import the components used as pages
 import HomePage from './components/pages/HomePage.react';
 import LoginPage from './components/pages/LoginPage.react';
+import ResetPage from './components/pages/ResetPage.react';
 import RegisterPage from './components/pages/RegisterPage.react';
 import Dashboard from './components/pages/Dashboard.react';
 import NotFound from './components/pages/NotFound.react';
@@ -100,6 +101,7 @@ ReactDOM.render(
         <Route path="/" component={HomePage} />
         <Route onEnter={checkAuth}>
           <Route path="/login" component={LoginPage} />
+          <Route path="/reset" component={ResetPage} />
           <Route path="/register" component={RegisterPage} />
           <Route path="/dashboard" component={Dashboard} />
         </Route>

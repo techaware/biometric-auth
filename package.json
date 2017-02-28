@@ -24,7 +24,9 @@
     "react-d3-core": "latest",
     "react-d3-tooltip": "latest",
     "html-webpack-plugin": "^1.6.1",
-    "appcache-webpack-plugin": "^1.2.0"
+    "appcache-webpack-plugin": "^1.2.0",
+    "email-verification":"latest"
+
   },
   "devDependencies": {
     "appcache-webpack-plugin": "^1.2.0",

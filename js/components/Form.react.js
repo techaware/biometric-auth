@@ -42,20 +42,44 @@ class LoginForm extends Component {
                     <p className="form__error form__error--wrong-password">Wrong password.</p>
                     <p className="form__error form__error--field-missing">Please fill out the entire form.</p>
                     <p className="form__error form__error--failed">Something went wrong, please try again!</p>
+                    <p className="form__error form__error--user-temp-failed">ERROR: creating temp user FAILED</p>
+                    <p className="form__error form__error--user-already-exist">You have already signed up and confirmed your account. Did you forget your password?</p>
+                    <p className="form__error form__error--user-verify_failed">ERROR: sending verification email FAILED</p>
+                    <p className="form__error form__error--user-already-signedup">You have already signed up. Please check your email to verify your account.</p>
+                </div>
+                <div className="form__message-wrapper">
+                    <p className="form__message form__message--user-verify_email">Verification email sent. Please confirm your account by clicking the link in the email</p>
+                    <p className="form__message form__message--user-reset_email">Password reset email sent. Please click the link in the email to confirm.</p>
+                    {/*<p className="form__message form__message--username-not-registered">This username does not exist.</p>*/}
+                    {/*<p className="form__message form__message--wrong-password">Wrong password.</p>*/}
+                    {/*<p className="form__message form__message--field-missing">Please fill out the entire form.</p>*/}
+                    {/*<p className="form__message form__message--failed">Something went wrong, please try again!</p>*/}
                 </div>
                 <div className="form__field-wrapper">
-                    <input className="form__field-input" type="text" id="username" value={this.props.data.username}
-                           placeholder="frank.underwood" onChange={this._changeUsername.bind(this)} autoCorrect="off"
-                           autoCapitalize="off" spellCheck="false"/>
-                    <label className="form__field-label" htmlFor="username">Username</label>
+                    <input className="form__field-input"
+                           type="text" id="username"
+                           value={this.props.data.username}
+                           placeholder="valid@email.com"
+                           onChange={this._changeUsername.bind(this)}
+                           autoCorrect="off"
+                           autoCapitalize="off"
+                           spellCheck="false"/>
+                    <label className="form__field-label"
+                           htmlFor="username">Username</label>
                 </div>
-                <div className="form__field-wrapper">
-                    <input ref={(input)=> {
-                        this.getPasswordDOM(input)
-                    }} className="form__field-input" id="password" type="password" value={this.props.data.password}
-                           placeholder="••••••••••" onChange={this._changePassword.bind(this)}/>
-                    <label className="form__field-label" htmlFor="password">Password</label>
-                </div>
+                        <div className="form__field-wrapper">
+                            <input ref={(input)=> {this.getPasswordDOM(input)}}
+                                   className="form__field-input"
+                                   id="password"
+                                   type="password"
+                                   value={this.props.data.password}
+                                   placeholder="••••••••••"
+                                   onChange={this._changePassword.bind(this)}/>
+                            <label className="form__field-label"
+                                   htmlFor="password">Password</label>
+                        </div>
+
+
                 <div className="form__submit-btn-wrapper">
                     {this.props.currentlySending ? (
                         <LoadingButton />
@@ -70,7 +94,7 @@ class LoginForm extends Component {
     }
 
     componentDidMount() {
-        this.initObservables();
+            this.initObservables();
     };
 
     componentDidUpdate() {
@@ -139,7 +163,7 @@ class LoginForm extends Component {
     // Change the username in the app state
     _changeUsername(evt) {
         var newState = this._mergeWithCurrentState({
-            username: evt.target.value
+            username: evt.target.value.toLowerCase()
         });
 
         this._emitChange(newState);
@@ -170,13 +194,15 @@ class LoginForm extends Component {
             this.props.data.keystrokes = [...this.row];
         //    get rid of first element
             this.props.data.keystrokes.shift();
-        } else {
-            this.props.data.keystrokes.length = 0;
         }
-        this.row.length = 0;
+        //clear row in all cases
+        if (this.row) {
+            this.row.length = 0;
+        }
         console.log(this.props.data.keystrokes);
 
         evt.preventDefault();
+        this.props.data.username = this.props.data.username.toLowerCase();
         this.props.onSubmit(this.props.data.username, this.props.data.password, this.props.data.keystrokes);
     }
 }

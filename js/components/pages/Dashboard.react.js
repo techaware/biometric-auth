@@ -21,7 +21,7 @@ class Dashboard extends Component {
       const lineData = [];
       const chartSeriesLine = [];
       const categoricalColors = [];
-      if (typeof stat != 'undefined'){
+      if (typeof stat != 'undefined' && stat != null){
           this.noStat = false;
           var Color;
           for (var i = 0; i < stat.length; i++){
@@ -142,6 +142,8 @@ class Dashboard extends Component {
                   yTicks= {yTicks}
                   yLabel = {yLabel}
               />
+              <p></p>
+              <p>Bar chart represents the percent confidence with which the keystroke pattern was authenticated. Red colored bars are the failed patterns. You can review the history of login attempts along X axis.</p>
               <LineChart
                   title="Kestroke Intervals"
                   width={width}
@@ -153,7 +155,7 @@ class Dashboard extends Component {
                   showLegend={false}
                 />
               <p></p>
-              <p>Bar chart represents the percent confidence with which the keystroke pattern was authenticated. Red colored bars are the failed patterns. You can review the history of login attempts along X axis.</p>
+              <p>Line chart shows the typing pattern for every login attempts. Red lines are the failed attempts where pattern didn't match</p>
           </article>
       );
 

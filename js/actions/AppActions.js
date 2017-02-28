@@ -41,6 +41,7 @@ export function login(username, password, keystrokes) {
     removeLastFormError();
     // If no username or password was specified, throw a field-missing error
     if (anyElementsEmpty({ username, password })) {
+      dispatch(changeForm(getInitialState()));
       requestFailed({
         type: "field-missing"
       },dispatch);
@@ -67,12 +68,10 @@ export function login(username, password, keystrokes) {
         dispatch(setStatusState(status));
         if (success === true) {
           // If the login worked, forward the user to the dashboard and clear the form
+          dispatch(changeForm(getInitialState()));
           forwardTo('/dashboard');
-          dispatch(changeForm({
-            username: "",
-            password: ""
-          }));
         } else {
+          dispatch(changeForm(getInitialState()));
           requestFailed(err,dispatch);
         }
       });
@@ -91,11 +90,8 @@ export function logout() {
         dispatch(sendingRequest(false));
         dispatch(setAuthState(false));
         // browserHistory.replace(null, '/');
-        forwardTo('/');
-        dispatch(changeForm({
-          username: "",
-          password: ""
-        }));
+        dispatch(changeForm(getInitialState()));
+        forwardTo('/login');
       } else {
         requestFailed(err,dispatch);
       }
@@ -103,6 +99,45 @@ export function logout() {
   }
 }
 
+export function reset(username, password, keystrokes) {
+  return (dispatch)=> {
+    dispatch(sendingRequest(true));
+    removeLastFormError();
+    if (anyElementsEmpty({username, password})) {
+      requestFailed({
+        type: "field-missing"
+      }, dispatch);
+      dispatch(sendingRequest(false));
+      return;
+    }
+
+    // Generate salt for password encryption
+    const salt = genSalt(username);
+    // Encrypt password
+    bcrypt.hash(password, salt, (err, hash) => {
+      // Something wrong while hashing
+      if (err) {
+        requestFailed({
+          type: 'failed'
+        }, dispatch);
+        return;
+      }
+
+      auth.reset(username, hash, keystrokes, function (success, msg) {
+        dispatch(sendingRequest(false));
+        dispatch(setAuthState(false));
+        if (success) {
+          // If the register worked, forward the user to the homepage and clear the form
+          forwardTo('/login');
+          showMessage(msg, dispatch);
+          dispatch(changeForm(getInitialState()));
+        } else {
+          requestFailed(msg, dispatch);
+        }
+      })
+    })
+  }
+}
 /**
  * Registers a user
  * @param  {string} username The username of the new user
@@ -133,19 +168,17 @@ export function register(username, password, keystrokes) {
         return;
       }
       // Use auth.js to fake a request
-      auth.register(username, hash, keystrokes, (success, err) => {
+      auth.register(username, hash, keystrokes, (success, msg) => {
         // When the request is finished, hide the loading indicator
         dispatch(sendingRequest(false));
-        dispatch(setAuthState(success));
+        dispatch(setAuthState(false));
         if (success) {
           // If the register worked, forward the user to the homepage and clear the form
-          forwardTo('/dashboard');
-          dispatch(changeForm({
-            username: "",
-            password: ""
-          }));
+           forwardTo('/login');
+          showMessage(msg,dispatch);
+          dispatch(changeForm(getInitialState()));
         } else {
-          requestFailed(err,dispatch);
+          requestFailed(msg,dispatch);
         }
       });
     });
@@ -206,6 +239,7 @@ function forwardTo(location) {
 }
 
 let lastErrType = "";
+let lastMsgType = "";
 
 /**
  * Called when a request failes
@@ -227,10 +261,30 @@ function requestFailed(err,dispatch) {
     form.classList.remove('js-form__err-animation');
   }, 150);
 
-  dispatch(changeForm({
-    username: "",
-    password: ""
-  }));
+  dispatch(changeForm(getInitialState()));
+}
+
+/**
+ * Called when a request failes
+ * @param  {object} err An object containing information about the error
+ * @param  {string} err.type The js-form__err + err.type class will be set on the form
+ */
+function showMessage(msg,dispatch) {
+  // Remove the class of the last error so there can only ever be one
+  removeLastFormError();
+  const form = document.querySelector('.form-page__form-wrapper');
+  // And add the respective classes
+  form.classList.add('js-form__msg');
+  // form.classList.add('js-form__msg-animation');
+  form.classList.add('js-form__msg--' + msg.type);
+  lastMsgType = msg.type;
+  // // Remove the animation class after the animation is finished, so it
+  // // can play again on the next error
+  // setTimeout(() => {
+  //   form.classList.remove('js-form__err-animation');
+  // }, 150);
+
+  dispatch(changeForm(getInitialState()));
 }
 
 /**
@@ -239,6 +293,7 @@ function requestFailed(err,dispatch) {
 function removeLastFormError() {
   const form = document.querySelector('.form-page__form-wrapper');
   form.classList.remove('js-form__err--' + lastErrType);
+  form.classList.remove('js-form__msg--' + lastMsgType);
 }
 
 /**
@@ -253,4 +308,12 @@ function anyElementsEmpty(elements) {
     }
   }
   return false;
+}
+
+function getInitialState(){
+  return {
+    username: '',
+    password: '',
+    keystrokes:''
+  }
 }

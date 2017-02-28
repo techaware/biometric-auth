@@ -81,6 +81,14 @@
   margin-bottom: 1em;
 }
 
+.form__message-wrapper {
+  display: none;
+  justify-content: center;
+  max-width: calc(100% - 2em);
+  margin: 0 auto;
+  margin-bottom: 1em;
+}
+
 .form__error {
   display: none;
   background-color: $error-color;
@@ -92,14 +100,38 @@
   user-select: none;
 }
 
+.form__message {
+  display: none;
+  background-color:#DFF2BF;
+  color: #4F8A10;
+  margin: 0;
+  padding: 0.5em 1em;
+  font-size: 0.8em;
+  font-family: $text-font-stack;
+  user-select: none;
+}
+
 .js-form__err .form__error-wrapper {
+  display: flex;
+}
+
+.js-form__msg .form__message-wrapper {
   display: flex;
 }
 
 .js-form__err--user-doesnt-exist .form__error--username-not-registered,
 .js-form__err--username-exists .form__error--username-taken,
 .js-form__err--password-wrong .form__error--wrong-password,
-.js-form__err--field-missing .form__error--field-missing {
+.js-form__err--field-missing .form__error--field-missing,
+.js-form__err--user-temp-failed .form__error--user-temp-failed,
+.js-form__err--user-already-exist .form__error--user-already-exist,
+.js-form__err--user-verify_failed .form__error--user-verify_failed,
+.js-form__err--user-already-signedup .form__error--user-already-signedup{
+  display: inline-block;
+}
+
+.js-form__msg--user-verify_email .form__message--user-verify_email,
+.js-form__msg--user-reset_email .form__message--user-reset_email{
   display: inline-block;
 }
 
