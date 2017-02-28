@@ -37,7 +37,7 @@ module.exports = function(){
                 service: 'Gmail',
                 auth: {
                     user: 'noreply@ecotaru.com',
-                    pass: 'Rahul@81'
+                    pass: '********'
                 }
             },
 
