@@ -31,8 +31,8 @@ module.exports = function(){
             persistentUserModel: User,
             expirationTime: 600, // 10 minutes
 
-            verificationURL: 'http://localhost:3000/email-verification/${URL}',
-            resetURL: 'http://localhost:3000/email-reset/${URL}',
+            verificationURL: 'http://auth.ecotaru.com/email-verification/${URL}',
+            resetURL: 'http://auth.ecotaru.com/email-reset/${URL}',
             transportOptions: {
                 service: 'Gmail',
                 auth: {
