@@ -63,7 +63,8 @@
     "url": ""
   },
   "scripts": {
-    "start": "node server",
+    "devbuild": "webpack -p --config ./webpack.dev.config.js",
+    "devstart": "NODE_ENV=development PORT=3000 node server",
     "prodbuild": "webpack -p --config ./webpack.prod.config.js",
     "prodstart":"NODE_ENV=production PORT=3000 node server"
   },
