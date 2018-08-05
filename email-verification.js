@@ -31,12 +31,12 @@ module.exports = function(){
             persistentUserModel: User,
             expirationTime: 600, // 10 minutes
 
-            verificationURL: 'http://auth.ecotaru.com/email-verification/${URL}',
-            resetURL: 'http://auth.ecotaru.com/email-reset/${URL}',
+            verificationURL: 'http://auth.domain.com/email-verification/${URL}',
+            resetURL: 'http://auth.domain.com/email-reset/${URL}',
             transportOptions: {
                 service: 'Gmail',
                 auth: {
-                    user: 'noreply@ecotaru.com',
+                    user: 'noreply@domain.com',
                     pass: '********'
                 }
             },
